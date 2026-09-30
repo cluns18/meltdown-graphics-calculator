@@ -969,3 +969,95 @@ textarea.field { font-family: var(--font-body); }
 @media (max-width: 640px) {
   .option-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Phone fit (2026-09-30), after the Pacific North calculator PRs #4-#6. The host page
+      sizes the iframe to each step, so every px here is page length. Goal: short steps
+      fit an iPhone SE screen with Next showing; tall steps (picks, catalog, quote) stack
+      compactly and never scroll inside the frame. Desktop untouched. ── */
+.color-select-native { display: none; }
+@media (max-width: 640px) {
+  :root { --card-pad: 16px; --gap: 12px; }
+  .slide-page { border-left: 0; border-right: 0; border-radius: 0; }
+  .slide-header { margin-bottom: 14px; }
+  .slide-title { font-size: 1.75rem; }
+  .slide-sub { margin-top: 6px; font-size: 0.9375rem; line-height: 1.45; }
+  .slide-nav { margin-top: 16px; padding-top: 14px; }
+  .nav-btn { min-height: 48px; font-size: 1rem; }
+  .option-list { gap: 8px; }
+  .option-card { padding: 10px 12px; }
+  .option-card__label { font-size: 1rem; }
+  .option-card--lead .option-card__label { font-size: 1.05rem; }
+  .option-card__detail { margin-top: 2px; font-size: 0.875rem; line-height: 1.4; }
+  .option-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .slide-note { font-size: 0.875rem; }
+
+  /* Garment type: the selected button already says it, so no 180px preview on phones. */
+  .garment-layout .garment-preview { display: none; }
+  .garment-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+
+  /* Colour: native picker on phones (82 swatches were 14 rows of page), preview capped. */
+  .swatch-grid { display: none; }
+  .color-select-native {
+    display: block;
+    width: 100%;
+    min-height: var(--ctl-h);
+    padding: 10px 12px;
+    border: 2px solid var(--mg-line-2);
+    border-radius: var(--radius-ctl);
+    background: var(--mg-cream);
+    color: var(--mg-navy);
+    font-family: var(--font-body);
+    font-size: 16px;
+  }
+  .color-select-native:focus { outline: none; border-color: var(--mg-orange); }
+  .color-select-native option { background: var(--mg-cream); color: var(--mg-navy); }
+  .color-preview img.color-img { max-height: 180px; }
+
+  /* Picks: horizontal cards, photo left, the reason right. */
+  .pick-grid { gap: 14px; padding-top: 14px; }
+  .pick-card {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    column-gap: 12px;
+    align-items: start;
+    padding: 16px 12px 12px;
+    text-align: left;
+  }
+  .pick-card > * { grid-column: 2; }
+  .pick-card > .pick-card-img { grid-column: 1; grid-row: 1 / span 6; height: 112px; margin: 0; }
+  .pick-card > .pick-badge, .pick-card > .pick-card-tick { grid-column: auto; }
+  .pick-badge { left: 12px; transform: none; font-size: 0.75rem; }
+  .pick-card-style { font-size: 1.2rem; }
+  .pick-card-head { margin-top: 2px; font-size: 0.9rem; }
+  .pick-card-bullets { margin-top: 6px; gap: 4px; }
+  .pick-card-bullets li:nth-child(n+2) { display: none; }
+  .pick-card-bullets li { font-size: 0.8125rem; }
+  .pick-card-foot { align-items: flex-start; padding-top: 8px; }
+  .pick-swatches { justify-content: flex-start; }
+  .pick-actions { margin-top: 10px; }
+
+  /* Catalog: one compact row per style. */
+  .pick-grid--catalog { grid-template-columns: 1fr; gap: 8px; }
+  .pick-grid--catalog .pick-card { padding: 10px; grid-template-columns: 72px minmax(0, 1fr); }
+  .pick-grid--catalog .pick-card > .pick-card-img { height: 84px; }
+  .pick-grid--catalog .pick-card-bullets,
+  .pick-grid--catalog .pick-card-blurb,
+  .pick-grid--catalog .pick-swatches { display: none; }
+  .pick-grid--catalog .pick-badge { position: static; justify-self: start; margin-bottom: 4px; }
+  .pick-grid--catalog .pick-card-style { font-size: 1.05rem; }
+  .pick-grid--catalog .pick-card-foot { flex-direction: row; gap: 10px; padding-top: 4px; }
+
+  /* Quote: sizes two across, label over a [-][qty][+] row. */
+  .size-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .size-cell { flex-direction: column; align-items: stretch; gap: 4px; padding: 6px; min-width: 0; }
+  .size-label { min-width: 0; text-align: center; }
+  .size-ctl { display: grid; grid-template-columns: 40px minmax(0, 1fr) 40px; gap: 4px; }
+  .size-ctl .size-input { grid-column: 2; grid-row: 1; width: 100%; min-width: 0; }
+  .size-ctl .size-btn { grid-row: 1; width: 40px; min-height: 44px; }
+  .size-ctl .size-btn:not(.size-btn--plus) { grid-column: 1; }
+  .size-ctl .size-btn--plus { grid-column: 3; }
+  textarea.field { min-height: 88px; }
+  .light-card, .contact-card { padding: 14px; }
+  .price-stats { margin-bottom: 10px; }
+  .fine-print { font-size: 0.8125rem; }
+}
