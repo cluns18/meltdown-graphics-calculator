@@ -58,22 +58,29 @@ function App() {
   // The card. Its rendered height is what the parent iframe follows.
   const cardRef = useRef(null);
   const lastHeightRef = useRef(0);
+  const readyRef = useRef(false);
+  const slideRef = useRef('intro');
 
-  // Tell the parent page how tall we are. The store's mg-quote section reads
-  // `type`, the older OBG bridge reads `event`, so both ride along. Measured from the
-  // card plus the container padding, never documentElement.scrollHeight: that number
-  // is floored at the iframe's viewport, so a frame sized from it can only ever grow.
+  // Report the real content height to the host page so it can size the iframe to each
+  // step: no dead space under a short step, no inner scroll on a tall one (ported from
+  // the Pacific North calculator, PRs #4-#6, 2026-09-30). Measured from the card plus
+  // the container padding, never documentElement.scrollHeight, which is floored at the
+  // iframe's own height and so can only ever grow. Nothing is posted until the page has
+  // loaded: before the stylesheet lands the unstyled layout measures thousands of px
+  // and would yank the host page. The step name rides along so the host can bring the
+  // frame back on screen when the step changes.
   const postHeight = useCallback((force = false) => {
+    if (!readyRef.current || window.parent === window) return;
     const card = cardRef.current;
     if (!card) return;
     const container = card.parentElement;
     const cs = container ? getComputedStyle(container) : null;
     const pad = cs ? (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0) : 0;
-    const height = Math.ceil(card.getBoundingClientRect().height + pad) + 2;
+    const height = Math.ceil(card.getBoundingClientRect().height + pad);
     if (!height) return;
-    if (!force && height === lastHeightRef.current) return;
+    if (!force && Math.abs(height - lastHeightRef.current) < 2) return;
     lastHeightRef.current = height;
-    window.parent.postMessage({ type: 'obgform_height', event: 'obgform_height', height }, '*');
+    window.parent.postMessage({ type: 'mg:calc-resize', height, slide: slideRef.current }, '*');
   }, []);
 
   useEffect(() => {
@@ -82,16 +89,16 @@ function App() {
       if (raf) return;
       raf = requestAnimationFrame(() => { raf = 0; postHeight(false); });
     };
-    schedule();
+    const start = () => { readyRef.current = true; postHeight(true); };
+    if (document.readyState === 'complete') start(); else window.addEventListener('load', start);
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(schedule) : null;
     if (ro && cardRef.current) ro.observe(cardRef.current);
     window.addEventListener('resize', schedule);
-    window.addEventListener('load', schedule);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedule).catch(() => {});
     return () => {
       if (ro) ro.disconnect();
       window.removeEventListener('resize', schedule);
-      window.removeEventListener('load', schedule);
+      window.removeEventListener('load', start);
       if (raf) cancelAnimationFrame(raf);
     };
   }, [postHeight]);
@@ -160,16 +167,16 @@ function App() {
     setGarmentType(t);
   };
 
-  // Analytics step event for the parent page, and bring the top of the card back
-  // into view on every step change so a tall step never strands the customer below.
+  // Analytics step event for the parent page, and a forced height report with the new
+  // step name so the host re-fits the frame on screen.
   const firstRender = useRef(true);
   useEffect(() => {
     window.parent.postMessage(
       { event: 'calculator_slide_view', calcSlideName: currentSlide, calcStepName: STEP_NAMES[currentSlide] || currentSlide },
       '*'
     );
+    slideRef.current = currentSlide;
     if (firstRender.current) { firstRender.current = false; return; }
-    window.parent.postMessage({ type: 'obgform_scroll_top', event: 'obgform_scroll_top' }, '*');
     postHeight(true);
   }, [currentSlide, postHeight]);
 

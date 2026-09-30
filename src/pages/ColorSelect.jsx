@@ -60,6 +60,15 @@ export default function ColorSelect({ onNext, onPrevious, pickedGarment, selecte
                         ? <img src={shown.image} alt={`${pickedGarment.label || pickedGarment.name} in ${shown.name}`} className='color-img' />
                         : <span className='color-hex' style={{ backgroundColor: shown.hex || '#e2e7e6' }} />}
                 </div>
+                {/* Phones: the native picker. 82 swatches were fourteen rows of page on an iPhone SE. */}
+                <select
+                    className='color-select-native'
+                    aria-label='Garment color'
+                    value={shown.name}
+                    onChange={(e) => { const c = colors.find((x) => x.name === e.target.value); if (c) setSelectedColor(c); }}
+                >
+                    {colors.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
+                </select>
                 <div className='swatch-grid'>
                     {colors.map((c) => (
                         <Swatch key={c.name} color={c} active={shown.name === c.name} onClick={() => setSelectedColor(c)} />

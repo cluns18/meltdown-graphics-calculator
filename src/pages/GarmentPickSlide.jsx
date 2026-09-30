@@ -169,7 +169,7 @@ export default function GarmentPickSlide({ typeId, typeName, fallbackGarments, s
 
     const lastPage = Math.max(0, Math.ceil(resultTotal / PAGE_SIZE) - 1);
     const lower = (typeName || 'garment').toLowerCase();
-    const scrollParent = () => { if (isEmbedded) window.parent.postMessage({ event: 'obgform_scroll_top' }, '*'); };
+    const scrollParent = () => { if (isEmbedded) window.parent.postMessage({ type: 'mg:calc-scroll-top' }, '*'); };
 
     if (browsing) {
         return (
