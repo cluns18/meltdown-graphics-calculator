@@ -3,6 +3,7 @@ import NavBtn from '../components/NavBtn';
 import calculateFinalQuote from '../utils/functions';
 import { sendQuote, clean, escName, artworkStatus } from '../utils/quoteDelivery';
 import SHOP_CONFIG from '../config/shop';
+import { crmContext, makeLeadId } from '../utils/crmContext';
 import { PLACEMENT_LABELS } from './PlacementSelect';
 import { TURNAROUND_LABELS } from './TurnaroundSelect';
 
@@ -155,6 +156,18 @@ export default function FinalQuote({
                 total_price: quotable ? quote.totalQuote.toFixed(2) : 'TBD',
                 artwork_status: artworkStatus({ artworkUrl: artworkUploaded ? selectedArtwork : null, pendingFilename }),
                 artwork_description: clean(artworkDescription, 4000) || 'No description provided',
+            },
+            // Structured copy for the CRM (utils/crmContext.js). The mail service
+            // prints none of it and ignores it when no CRM is connected.
+            crm: {
+                ...crmContext(),
+                lead_id: makeLeadId('calc'),
+                form: 'calculator',
+                service: isSP ? 'Screen Printing' : 'DTF Printing',
+                quantity,
+                quoted_total: quotable ? Number(quote.totalQuote.toFixed(2)) : null,
+                turnaround: turnaroundLabel,
+                artwork_status: artworkUploaded ? 'File uploaded' : 'No artwork yet',
             },
         };
 

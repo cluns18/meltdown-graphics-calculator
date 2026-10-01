@@ -14,6 +14,10 @@ import tshirtGarments from './garments/tshirts';
 import longSleeveGarments from './garments/longsleeves';
 import hoodieGarments from './garments/hoodies';
 import poloGarments from './garments/polos';
+import { crmContext } from './utils/crmContext';
+
+// Ask the store page which page this is, for the CRM (see utils/crmContext.js).
+crmContext();
 
 // The hand-built shortlist per type, shown only when the live catalog is off or fails
 // to load, so the garment step never goes dark. A fallback pick carries no live cost,
